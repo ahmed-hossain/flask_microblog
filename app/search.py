@@ -2,6 +2,8 @@ from flask import current_app
 
 
 def create_index(index):
+    if not current_app.elasticsearch:
+        return
     if not current_app.elasticsearch.indices.exists(index=index):
         request_body = {
             "settings" : {
