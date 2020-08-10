@@ -48,3 +48,4 @@ class Config:
     POSTS_PER_PAGE = 12
 
     ELASTICSEARCH_URL = es_header if es_header else None
+    LOG_TO_STDOUT = os.environ.get('LOG_TO_STDOUT')

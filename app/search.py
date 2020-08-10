@@ -10,7 +10,7 @@ def create_index(index):
             },
 
 	        'mappings': {
-	            'examplecase': {
+	            'post': {
 	                'properties': {
 	                    'body': {'index': 'analyzed', 'type': 'string'},}}}}
         current_app.elasticsearch.indices.create(index=index, body=request_body)
