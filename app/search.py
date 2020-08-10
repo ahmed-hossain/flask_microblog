@@ -5,22 +5,13 @@ def create_index(index):
     if not (current_app.elasticsearch and current_app.elasticsearch.ping()):
         return
     if not current_app.elasticsearch.indices.exists(index=index):
-        request_body = {
-            "settings" : {
-	            "number_of_shards": 1,
-	            "number_of_replicas": 1
-            },
-
-	        'mappings': {
-	            'post': {
-	                'properties': {
-	                    'body': {'index': 'analyzed', 'type': 'string'},}}}}
-        current_app.elasticsearch.indices.create(index=index, body=request_body)
+        current_app.elasticsearch.indices.create(index=index)
 
 
 def add_to_index(index, model):
     if not (current_app.elasticsearch and current_app.elasticsearch.ping()):
         return
+    create_index(index)
     payload = {}
     for field in model.__searchable__:
         payload[field] = getattr(model, field)
@@ -30,13 +21,14 @@ def add_to_index(index, model):
 def remove_from_index(index, model):
     if not (current_app.elasticsearch and current_app.elasticsearch.ping()):
         return
+    create_index(index)
     current_app.elasticsearch.delete(index=index, id=model.id)
 
 
 def query_index(index, query, page, per_page):
     if not (current_app.elasticsearch and current_app.elasticsearch.ping()):
         return [], 0
-
+    create_index(index)
     search = current_app.elasticsearch.search(
         index=index,
         body={'query': {'multi_match': {'query': query, 'fields':['*']}},
