@@ -1,9 +1,34 @@
-import os
+import os, re
 from dotenv import load_dotenv
+from elasticsearch import Elasticsearch
 
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 load_dotenv(os.path.join(basedir, '.env'))
+
+
+# Parse the auth and host from env:
+bonsai = os.environ['BONSAI_URL']
+if bonsai:
+    auth = re.search('https\:\/\/(.*)\@', bonsai).group(1).split(':')
+    host = bonsai.replace('https://%s:%s@' % (auth[0], auth[1]), '')
+
+    # optional port
+    match = re.search('(:\d+)', host)
+    if match:
+        p = match.group(0)
+        host = host.replace(p, '')
+        port = int(p.split(':')[1])
+    else:
+        port=443
+
+    # Connect to cluster over SSL using auth for best security:
+    es_header = [{
+        'host': host,
+        'port': port,
+        'use_ssl': True,
+        'http_auth': (auth[0],auth[1])
+    }]
 
 
 class Config:
@@ -22,4 +47,4 @@ class Config:
 
     POSTS_PER_PAGE = 12
 
-    ELASTICSEARCH_URL = os.environ.get('ELASTICSEARCH_URL')
+    ELASTICSEARCH_URL = es_header if es_header else None

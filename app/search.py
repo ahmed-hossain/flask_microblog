@@ -1,10 +1,24 @@
 from flask import current_app
 
 
+def create_index(index):
+    if not current_app.elasticsearch.indices.exists(index=index):
+        request_body = {
+            "settings" : {
+	            "number_of_shards": 1,
+	            "number_of_replicas": 1
+            },
+
+	        'mappings': {
+	            'examplecase': {
+	                'properties': {
+	                    'body': {'index': 'analyzed', 'type': 'string'},}}}}
+        current_app.elasticsearch.indices.create(index=index, body=request_body)
+
+
 def add_to_index(index, model):
     if not current_app.elasticsearch:
         return
-
     payload = {}
     for field in model.__searchable__:
         payload[field] = getattr(model, field)

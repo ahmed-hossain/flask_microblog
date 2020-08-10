@@ -42,7 +42,7 @@ def create_app(config_class=Config):
     from app.main import bp as main_bp
     app.register_blueprint(main_bp)
 
-    app.elasticsearch = Elasticsearch([app.config['ELASTICSEARCH_URL']]) \
+    app.elasticsearch = Elasticsearch(app.config['ELASTICSEARCH_URL']) \
             if app.config['ELASTICSEARCH_URL'] else None
 
     # Sending error log by email
