@@ -2,7 +2,7 @@ from flask import current_app
 
 
 def create_index(index):
-    if not current_app.elasticsearch:
+    if not (current_app.elasticsearch and current_app.elasticsearch.ping()):
         return
     if not current_app.elasticsearch.indices.exists(index=index):
         request_body = {
@@ -19,7 +19,7 @@ def create_index(index):
 
 
 def add_to_index(index, model):
-    if not current_app.elasticsearch:
+    if not (current_app.elasticsearch and current_app.elasticsearch.ping()):
         return
     payload = {}
     for field in model.__searchable__:
@@ -28,13 +28,13 @@ def add_to_index(index, model):
 
 
 def remove_from_index(index, model):
-    if not current_app.elasticsearch:
+    if not (current_app.elasticsearch and current_app.elasticsearch.ping()):
         return
     current_app.elasticsearch.delete(index=index, id=model.id)
 
 
 def query_index(index, query, page, per_page):
-    if not current_app.elasticsearch:
+    if not (current_app.elasticsearch and current_app.elasticsearch.ping()):
         return [], 0
 
     search = current_app.elasticsearch.search(
