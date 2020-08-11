@@ -16,7 +16,7 @@ class SearchableMixin:
         if current_app.config['TESTING']:
             ids, total = query_index(cls.__tablename__+'_test', expression, page, per_page)
         else:
-            ids, total = query_index(cls.__tablename__+'_test', expression, page, per_page)
+            ids, total = query_index(cls.__tablename__, expression, page, per_page)
         if total == 0:
             return cls.query.filter_by(id=0), 0
         when = []
