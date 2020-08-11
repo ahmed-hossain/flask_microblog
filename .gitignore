@@ -3,3 +3,5 @@ __pycache__/
 logs/
 app.db
 .env
+Dockerfile
+boot.sh
