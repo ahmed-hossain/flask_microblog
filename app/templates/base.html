@@ -14,10 +14,18 @@
         </button>
         <div class="collapse navbar-collapse" id="navbar-collapse-1">
             <ul class="navbar-nav">
-                {% if current_user.is_authenticated %}
+            {% if current_user.is_authenticated %}
                 <li class="nav-item"><a class="nav-link" href="{{ url_for('main.index') }}">Home</a></li>
                 <li class="nav-item"><a class="nav-link" href="{{ url_for('main.explore') }}">Explore</a></li>
+                {% if g.search_form %}
+                <form class="nav-item form-inline ml-md-2" method="get" action="{{ url_for('main.search') }}">
+                    <div class="form-group">
+                        {{ g.search_form.q(size=20, class='form-control',
+                                    placeholder=g.search_form.q.label.text) }}
+                    </div>
+                </form>
                 {% endif %}
+            {% endif %}
             </ul>
 
             <ul class="navbar-nav ml-auto">
@@ -29,15 +37,6 @@
                 <li class="nav-item"><a class="nav-link" href="{{ url_for('auth.logout') }}">Logout</a></li>
                 {% endif %}
             </ul>
-
-            {% if g.search_form %}
-            <form class="form-inline ml-md-2" method="get" action="{{ url_for('main.search') }}">
-                <div class="form-group">
-                    {{ g.search_form.q(size=20, class='form-control',
-                                placeholder=g.search_form.q.label.text) }}
-                </div>
-            </form>
-            {% endif %}
         </div>
     </div>
 </nav>
