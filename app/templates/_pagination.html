@@ -1,14 +1,26 @@
-<nav aria-label="pagination">
+<nav aria-label="pagination" class="mt-5">
     <ul class="pagination justify-content-between">
         <li class="page-item{% if not prev_url %} disabled{% endif %}">
             <a class="page-link" href="{{ prev_url or '#' }}">
                 <span aria-hidden="true">&larr;</span>
-                {% if total %}Previous results{% else %}Newer posts{% endif %}
+                {% if total %}
+                    Previous results
+                {% elif messages %}
+                    Newer messages
+                {% else %}
+                    Newer posts
+                {% endif %}
             </a>
         </li>
         <li class="page-item{% if not next_url %} disabled{% endif %}">
             <a class="page-link" href="{{ next_url or '#' }}">
-                {% if total %}Next results{% else %}Older posts{% endif %}
+                {% if total %}
+                    Next results
+                {% elif messages %}
+                    Older messages
+                {% else %}
+                    Older posts
+                {% endif %}
                 <span aria-hidden="true">&rarr;</span>
             </a>
         </li>
