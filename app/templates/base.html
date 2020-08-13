@@ -14,7 +14,7 @@
         </button>
         <div class="collapse navbar-collapse" id="navbar-collapse-1">
             <ul class="navbar-nav">
-            {% if current_user.is_authenticated %}
+                {% if current_user.is_authenticated %}
                 <li class="nav-item"><a class="nav-link" href="{{ url_for('main.index') }}">Home</a></li>
                 <li class="nav-item"><a class="nav-link" href="{{ url_for('main.explore') }}">Explore</a></li>
                 {% if g.search_form %}
@@ -25,7 +25,7 @@
                     </div>
                 </form>
                 {% endif %}
-            {% endif %}
+                {% endif %}
             </ul>
 
             <ul class="navbar-nav ml-auto">
@@ -34,12 +34,21 @@
                 {% else %}
                 <li class="nav-item">
                     <a href="{{ url_for('main.messages') }}" class="nav-link">
-                        Messages <span class="badge badge-light">{{ current_user.new_messages() }}</span>
+                        Messages 
+                        {% if current_user.new_messages %}
+                        <span id="message_count"
+                            class="badge badge-light">
+                            {{ current_user.new_messages() }}
+                        </span>
+                        {% else %}
+                        <span id="message_count"
+                            class="badge badge-light invisible">
+                        </span>
+                        {% endif %}
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link"
-                        href="{{ url_for('main.user', username=current_user.username) }}">Profile</a>
+                    <a class="nav-link" href="{{ url_for('main.user', username=current_user.username) }}">Profile</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="{{ url_for('auth.logout') }}">Logout</a>
@@ -71,46 +80,67 @@
 {{ moment.include_moment() }}
 <script>
     $(function () {
-            var timer = null;
-            var xhr = null;
-            $('.user_popup').hover(
-                function(event) {
-                    // mouse in event handler
-                    var elem = $(event.currentTarget);
-                    timer = setTimeout(function() {
-                        timer = null;
-                        xhr = $.ajax(
-                            '/user/' + elem.first().text().trim() + '/popup').done(
-                                function(data) {
-                                    xhr = null;
-                                    elem.popover({
-                                        trigger: 'manual',
-                                        html: true,
-                                        animation: true,
-                                        container: elem,
-                                        content: data
-                                    }).popover('show');
-                                    flask_moment_render_all();
-                                }
-                            );
-                    }, 1000);
-                },
-                function(event) {
-                    // mouse out event handler
-                    var elem = $(event.currentTarget);
-                    if (timer) {
-                        clearTimeout(timer);
-                        timer = null;
-                    }
-                    else if (xhr) {
-                        xhr.abort();
-                        xhr = null;
-                    }
-                    else {
-                        elem.popover('hide');
-                    }
+        var timer = null;
+        var xhr = null;
+        $('.user_popup').hover(
+            function (event) {
+                // mouse in event handler
+                var elem = $(event.currentTarget);
+                timer = setTimeout(function () {
+                    timer = null;
+                    xhr = $.ajax(
+                        '/user/' + elem.first().text().trim() + '/popup').done(
+                            function (data) {
+                                xhr = null;
+                                elem.popover({
+                                    trigger: 'manual',
+                                    html: true,
+                                    animation: true,
+                                    container: elem,
+                                    content: data
+                                }).popover('show');
+                                flask_moment_render_all();
+                            }
+                        );
+                }, 1000);
+            },
+            function (event) {
+                // mouse out event handler
+                var elem = $(event.currentTarget);
+                if (timer) {
+                    clearTimeout(timer);
+                    timer = null;
                 }
-            );
-        });
+                else if (xhr) {
+                    xhr.abort();
+                    xhr = null;
+                }
+                else {
+                    elem.popover('hide');
+                }
+            }
+        );
+    });
+
+    function setMessageCount(n){
+        $('#message_count').text(n)
+        $('#message_count').toggleClass('invisible', !n)
+    }
+    {% if current_user.is_authenticated %}
+        $(function(){
+            var since = 0;
+            setInterval(function(){
+                $.ajax("{{ url_for('main.notifications')}}?since="+since).done(
+                    function(notifications){
+                        for (var i = 0; i < notifications.length; i++)
+                            if (notifications[i].name == 'unread_message_count'){
+                                setMessageCount(notifications[i].data);
+                                since = notifications.timestamp
+                            }
+                    }
+                )
+            },10000)
+        })
+    {% endif %}
 </script>
 {% endblock %}
