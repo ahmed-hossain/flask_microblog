@@ -35,7 +35,7 @@
                 <li class="nav-item">
                     <a href="{{ url_for('main.messages') }}" class="nav-link">
                         Messages 
-                        {% if current_user.new_messages %}
+                        {% if current_user.new_messages() > 0 %}
                         <span id="message_count"
                             class="badge badge-light">
                             {{ current_user.new_messages() }}
